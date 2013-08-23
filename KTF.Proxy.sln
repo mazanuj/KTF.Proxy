@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KTF.Proxy.UI", "KTF.Proxy.UI\KTF.Proxy.UI.csproj", "{B16E58BF-0820-4C1F-AF0B-CC14588F2E59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KTF.Proxy", "KTF.Proxy\KTF.Proxy.csproj", "{7D89B999-6DD8-43C7-B54C-24B8882CB93D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KTF.Proxy.Test", "KTF.Proxy.Test\KTF.Proxy.Test.csproj", "{D3ECF2FD-4B85-4F98-BF10-5603992D8E18}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{64739EA8-1363-48C6-B826-3F01DE8EB226}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B16E58BF-0820-4C1F-AF0B-CC14588F2E59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B16E58BF-0820-4C1F-AF0B-CC14588F2E59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B16E58BF-0820-4C1F-AF0B-CC14588F2E59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B16E58BF-0820-4C1F-AF0B-CC14588F2E59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D89B999-6DD8-43C7-B54C-24B8882CB93D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D89B999-6DD8-43C7-B54C-24B8882CB93D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D89B999-6DD8-43C7-B54C-24B8882CB93D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D89B999-6DD8-43C7-B54C-24B8882CB93D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3ECF2FD-4B85-4F98-BF10-5603992D8E18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3ECF2FD-4B85-4F98-BF10-5603992D8E18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3ECF2FD-4B85-4F98-BF10-5603992D8E18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3ECF2FD-4B85-4F98-BF10-5603992D8E18}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
