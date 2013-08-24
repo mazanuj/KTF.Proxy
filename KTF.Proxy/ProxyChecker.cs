@@ -74,9 +74,9 @@ namespace KTF.Proxy
 
             List<WebProxy> prox = null;
             if(cs == null)
-                prox =  new List<WebProxy>(proxies.AsParallel().Where(CheckProxy));
+                prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).Where(CheckProxy));
             else
-                prox =  new List<WebProxy>(proxies.AsParallel().WithCancellation(cs.Token).Where(CheckProxy));
+                prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).WithCancellation(cs.Token).Where(CheckProxy));
 
             Debug.WriteLine("Checking done");
 
