@@ -15,7 +15,7 @@ namespace KTF.Proxy.Test
             CheckerproxySourceReader c = new CheckerproxySourceReader();
             CancellationTokenSource canc = new CancellationTokenSource();
             canc.Cancel();
-            c.GetProxies("", ConnectionType.Any, "",canc);
+            c.GetProxies("", ConnectionType.Any, "",canc.Token);
         }
 
         [TestMethod]
@@ -25,7 +25,7 @@ namespace KTF.Proxy.Test
             FreeproxySourceReader c = new FreeproxySourceReader();
             CancellationTokenSource canc = new CancellationTokenSource();
             canc.Cancel();
-            c.GetProxies("", ConnectionType.Any, "", canc);
+            c.GetProxies("", ConnectionType.Any, "", canc.Token);
         }
     }
 }

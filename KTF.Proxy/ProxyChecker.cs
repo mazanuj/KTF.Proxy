@@ -10,7 +10,7 @@ namespace KTF.Proxy
 {
     public class ProxyChecker
     {
-        const string UrlToCheck = "http://www.yandex.ru/";
+        const string UrlToCheck = "http://ya.ru/";
 
         /// <summary>
         /// Average time in millisecond for checking 1 proxy
@@ -48,12 +48,13 @@ namespace KTF.Proxy
                 myHttpWebRequest.AllowAutoRedirect = false;
                 myHttpWebRequest.Proxy = proxy;
                 myHttpWebRequest.Timeout = 1200;
+                myHttpWebRequest.KeepAlive = false;
                 var myHttpWebResponse = (HttpWebResponse)myHttpWebRequest.GetResponse();
 
                 OnChecked(new WebProxyEventArgs(proxy, true));
                 return true;
             }
-            catch (WebException)
+            catch (WebException ex)
             {
                 OnChecked(new WebProxyEventArgs(proxy, false));
                 return false;
@@ -67,18 +68,14 @@ namespace KTF.Proxy
         /// <param name="cs">CancellationTokenSource. Null if not needed</param>
         /// <exception cref="System.ArgumentNullException"/>
         /// <exception cref="System.OperationCanceledException"/>
-        public IEnumerable<WebProxy> GetTestedProxies(IEnumerable<WebProxy> proxies, CancellationTokenSource cs = null)
+        public IEnumerable<WebProxy> GetTestedProxies(IEnumerable<WebProxy> proxies, CancellationToken cs)
         {
             if (proxies == null) throw new ArgumentNullException();
-            Debug.WriteLine("Checking proxies with " + UrlToCheck);
+            Trace.WriteLine("Checking proxies with " + UrlToCheck);
 
             List<WebProxy> prox = null;
-            if(cs == null)
-                prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).Where(CheckProxy));
-            else
-                prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).WithCancellation(cs.Token).Where(CheckProxy));
-
-            Debug.WriteLine("Checking done");
+                prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).WithCancellation(cs).Where(CheckProxy));
+            Trace.WriteLine("Checking done");
 
             return prox;
         }
