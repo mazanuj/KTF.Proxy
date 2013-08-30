@@ -13,10 +13,10 @@ namespace KTF.Proxy.Readers
 {
     public class FreeproxySourceReader : SourceReaderBase
     {
-        public override IEnumerable<System.Net.WebProxy> GetProxies(string country, ConnectionType type, string port, System.Threading.CancellationTokenSource cs)
+        public override IEnumerable<System.Net.WebProxy> GetProxies(string country, ConnectionType type, string port, System.Threading.CancellationToken cs)
         {
             List<WebProxy> proxies = new List<WebProxy>();
-       
+
             string url = "http://2freeproxy.com/wp-content/plugins/proxy/load_proxy.php";
             string post = "type=standard";
 
@@ -41,17 +41,12 @@ namespace KTF.Proxy.Readers
             myHttpWebRequest.AllowAutoRedirect = false;
 
             var asyncResult = myHttpWebRequest.BeginGetResponse(null, null);
-            if (cs != null)
+            WaitHandle.WaitAny(new[] { asyncResult.AsyncWaitHandle, cs.WaitHandle });
+            if (cs.IsCancellationRequested)
             {
-                WaitHandle.WaitAny(new[] { asyncResult.AsyncWaitHandle, cs.Token.WaitHandle });
-                if (cs.Token.IsCancellationRequested)
-                {
-                    myHttpWebRequest.Abort();
-                    throw new OperationCanceledException();
-                }
+                myHttpWebRequest.Abort();
+                throw new OperationCanceledException();
             }
-            else
-                WaitHandle.WaitAny(new[] { asyncResult.AsyncWaitHandle });
 
             var myHttpWebResponse = myHttpWebRequest.EndGetResponse(asyncResult);
             Debug.WriteLine("Response is received");
@@ -62,7 +57,7 @@ namespace KTF.Proxy.Readers
             sr.Close();
 
             Debug.WriteLine("Parse response in JSON format");
-            var addresses = JObject.Parse(json)["proxy"].ToString().Split(new string[]{"<br>"}, StringSplitOptions.RemoveEmptyEntries);
+            var addresses = JObject.Parse(json)["proxy"].ToString().Split(new string[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries);
 
             Debug.WriteLine("Processing response");
             foreach (var address in addresses)
@@ -75,6 +70,11 @@ namespace KTF.Proxy.Readers
             Debug.WriteLine("Proxies loaded successfully");
 
             return proxies;
+        }
+
+        public override string Name
+        {
+            get { return "Freeproxy.com"; }
         }
     }
 }

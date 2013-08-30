@@ -11,12 +11,12 @@ namespace KTF.Proxy.Readers
 {
     public class CheckerproxySourceReader : SourceReaderBase
     {
-        public override IEnumerable<WebProxy> GetProxies(string country, ConnectionType type, string port, CancellationTokenSource cs)
+        public override IEnumerable<WebProxy> GetProxies(string country, ConnectionType type, string port, CancellationToken cs)
         {
             List<WebProxy> proxies = new List<WebProxy>();
 
             string url = "";
-            if(DateTime.Now.Hour > 15)
+            if (DateTime.Now.Hour > 15)
                 url = "http://checkerproxy.net/ru/" + DateTime.Now.ToString("dd-MM-yyyy");
             else
                 url = "http://checkerproxy.net/ru/" + DateTime.Now.AddDays(-1).ToString("dd-MM-yyyy");
@@ -29,17 +29,14 @@ namespace KTF.Proxy.Readers
             myHttpWebRequest.AllowAutoRedirect = false;
 
             var asyncResult = myHttpWebRequest.BeginGetResponse(null, null);
-            if (cs != null)
+
+            WaitHandle.WaitAny(new[] { asyncResult.AsyncWaitHandle, cs.WaitHandle });
+            if (cs.IsCancellationRequested)
             {
-                WaitHandle.WaitAny(new[] { asyncResult.AsyncWaitHandle, cs.Token.WaitHandle });
-                if (cs.Token.IsCancellationRequested)
-                {
-                    myHttpWebRequest.Abort();
-                    throw new OperationCanceledException();
-                }
+                myHttpWebRequest.Abort();
+                throw new OperationCanceledException();
             }
-            else
-                WaitHandle.WaitAny(new[] { asyncResult.AsyncWaitHandle });
+
 
             var myHttpWebResponse = myHttpWebRequest.EndGetResponse(asyncResult);
             Debug.WriteLine("Response is received");
@@ -99,6 +96,11 @@ namespace KTF.Proxy.Readers
             Debug.WriteLine("Proxies loaded successfully");
 
             return proxies;
+        }
+
+        public override string Name
+        {
+            get { return "Checkerproxy.net"; }
         }
     }
 }

@@ -10,8 +10,10 @@ namespace KTF.Proxy.Readers
 {
     public interface IProxySourceReader
     {
-        IEnumerable<WebProxy> GetProxies(string country, ConnectionType type, string port, CancellationTokenSource cs);
+        IEnumerable<WebProxy> GetProxies(string country, ConnectionType type, string port, CancellationToken cs);
         IEnumerable<WebProxy> GetProxies(string country, ConnectionType type, string port);
+
+        string Name { get; }
     }
 
     public enum ConnectionType
