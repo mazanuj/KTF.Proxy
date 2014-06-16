@@ -20,12 +20,13 @@ namespace KTF.Proxy.Readers
             else
                 url = "http://checkerproxy.net/ru/" + DateTime.Now.AddDays(-1).ToString("dd-MM-yyyy");
 
-            Debug.WriteLine("Sending request to " + url);
+            Trace.WriteLine("Sending request to " + url);
 
             string HtmlResult = null;
 
             HttpWebRequest myHttpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             myHttpWebRequest.AllowAutoRedirect = false;
+            myHttpWebRequest.Proxy = WebRequest.DefaultWebProxy;
 
             var asyncResult = myHttpWebRequest.BeginGetResponse(null, null);
 
@@ -38,18 +39,18 @@ namespace KTF.Proxy.Readers
 
 
             var myHttpWebResponse = myHttpWebRequest.EndGetResponse(asyncResult);
-            Debug.WriteLine("Response is received");
             System.IO.StreamReader sr = new System.IO.StreamReader(myHttpWebResponse.GetResponseStream());
             HtmlResult = sr.ReadToEnd();
             sr.Close();
+            Trace.WriteLine("Response is received");
 
-            Debug.WriteLine("Parse response");
+            Trace.WriteLine("Parse response");
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(HtmlResult);
 
             int limit = doc.GetElementbyId("result-box-table").LastChild.ChildNodes.Count();
 
-            Debug.WriteLine("Processing response");
+            Trace.WriteLine("Processing response");
             for (int i = 0; i < limit; i++)
             {
                 if (cs != null && cs.IsCancellationRequested)
@@ -92,7 +93,7 @@ namespace KTF.Proxy.Readers
                 }
             }
 
-            Debug.WriteLine("Proxies loaded successfully");
+            Trace.WriteLine("Proxies loaded successfully");
 
             return proxies;
         }

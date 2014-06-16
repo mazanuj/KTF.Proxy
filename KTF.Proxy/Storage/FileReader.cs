@@ -43,6 +43,8 @@ namespace KTF.Proxy.Storage
             List<WebProxy> proxies = new List<WebProxy>();
 
             string line = null;
+            if (!File.Exists(FilePath)) return null;
+
             TextReader readFile = new StreamReader(FilePath);
 
             while (true)
@@ -76,6 +78,8 @@ namespace KTF.Proxy.Storage
         /// <param name="proxies">Proxies to save</param>
         public void SaveToFile(IEnumerable<WebProxy> proxies)
         {
+            if (proxies.Count() == 0) return;
+
             System.IO.TextWriter writeFile = new StreamWriter(FilePath);
             foreach (var proxy in proxies)
             {

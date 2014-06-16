@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading;
 
 namespace KTF.Proxy.Test
 {
@@ -20,13 +21,13 @@ namespace KTF.Proxy.Test
         [ExpectedException(typeof(ArgumentNullException))]
         public void NullProxies()
         {
-            new ProxyChecker().GetTestedProxies(null, null);
+            new ProxyChecker().GetTestedProxies(null, CancellationToken.None);
         }
 
         [TestMethod]
         public void EmptyProxies()
         {
-            Assert.AreEqual(0, new ProxyChecker().GetTestedProxies(new List<WebProxy>(), null).Count());
+            Assert.AreEqual(0, new ProxyChecker().GetTestedProxies(new List<WebProxy>(), CancellationToken.None).Count());
         }
     }
 }

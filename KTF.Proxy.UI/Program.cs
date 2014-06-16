@@ -30,7 +30,7 @@ namespace KTF.Proxy.UI
             s.Restart();
             Console.WriteLine();
 
-            var tes = c.GetTestedProxies(res);
+            var tes = c.GetTestedProxies(res, CancellationToken.None);
             Console.WriteLine("Working: " + tes.Count());
             s.Stop();
             Console.WriteLine("Ellapsed: " + s.ElapsedMilliseconds / 1000 + "s");
