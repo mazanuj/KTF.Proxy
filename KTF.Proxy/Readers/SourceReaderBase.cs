@@ -6,7 +6,7 @@ namespace KTF.Proxy.Readers
 {
     public abstract class SourceReaderBase : IProxySourceReader
     {
-        public abstract IEnumerable<System.Net.WebProxy> GetProxies(string country, ConnectionType type, string port, System.Threading.CancellationToken cs);
+        public abstract IEnumerable<WebProxy> GetProxies(string country, ConnectionType type, string port, CancellationToken cs);
 
         public IEnumerable<WebProxy> GetProxies(string country, ConnectionType type, string port)
         {

@@ -8,31 +8,28 @@ using System.Threading;
 namespace KTF.Proxy
 {
     public class ProxyChecker
-<<<<<<< HEAD
-    {        
-=======
     {
-        const string UrlToCheck = "http://www.yandex.ru/";
+        //const string UrlToCheck = "http://ya.ru/";
+        //const int DefaultTimeout = 1200;
 
->>>>>>> parent of 91d9a64... improvements
         /// <summary>
         /// Average time in millisecond for checking 1 proxy
         /// </summary>
-        //public const int AverageChekingTime = 430;        
+        public const int AverageChekingTime = 430;
 
-        private int Timeout { get; set; }
+        private int DefaultTimeout { get; set; }
         private string UrlToCheck { get; set; }
         
 
         public event CheckedEventHandler Checked;
 
-        public ProxyChecker(int timeout, string server)
+        public ProxyChecker(int defaulTimeOut, string urlToCheck)
         {
-            Timeout = timeout;
-            UrlToCheck = server;
+            DefaultTimeout = defaulTimeOut;
+            UrlToCheck = urlToCheck;
         }
 
-        private void OnChecked(WebProxyEventArgs e)
+        protected virtual void OnChecked(WebProxyEventArgs e)
         {
             if (Checked != null)
                 Checked(this, e);
@@ -43,7 +40,7 @@ namespace KTF.Proxy
         /// </summary>
         /// <param name="proxy">Proxy to check</param>
         /// <exception cref="System.OperationCanceledException"/>
-        private bool CheckProxy(WebProxy proxy)
+        internal bool CheckProxy(WebProxy proxy)
         {
             if (proxy == null) return false;
 
@@ -52,14 +49,9 @@ namespace KTF.Proxy
                 var myHttpWebRequest = (HttpWebRequest)WebRequest.Create(UrlToCheck);
                 myHttpWebRequest.AllowAutoRedirect = false;
                 myHttpWebRequest.Proxy = proxy;
-<<<<<<< HEAD
-                myHttpWebRequest.Timeout = Timeout;
+                myHttpWebRequest.Timeout = DefaultTimeout;
                 myHttpWebRequest.KeepAlive = false;
-                var httpWebResponse = (HttpWebResponse)myHttpWebRequest.GetResponse();
-=======
-                myHttpWebRequest.Timeout = 1200;
                 var myHttpWebResponse = (HttpWebResponse)myHttpWebRequest.GetResponse();
->>>>>>> parent of 91d9a64... improvements
 
                 OnChecked(new WebProxyEventArgs(proxy, true));
                 return true;
@@ -78,23 +70,13 @@ namespace KTF.Proxy
         /// <param name="cs">CancellationTokenSource. Null if not needed</param>
         /// <exception cref="System.ArgumentNullException"/>
         /// <exception cref="System.OperationCanceledException"/>
-        public IEnumerable<WebProxy> GetTestedProxies(IEnumerable<WebProxy> proxies, CancellationTokenSource cs = null)
+        public IEnumerable<WebProxy> GetTestedProxies(IEnumerable<WebProxy> proxies, CancellationToken cs)
         {
             if (proxies == null) throw new ArgumentNullException();
-            Debug.WriteLine("Checking proxies with " + UrlToCheck);
+            Trace.WriteLine("Checking proxies with " + UrlToCheck);
 
-<<<<<<< HEAD
             var prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).WithCancellation(cs).Where(CheckProxy));
             Trace.WriteLine("Checking done");
-=======
-            List<WebProxy> prox = null;
-            if(cs == null)
-                prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).Where(CheckProxy));
-            else
-                prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).WithCancellation(cs.Token).Where(CheckProxy));
-
-            Debug.WriteLine("Checking done");
->>>>>>> parent of 91d9a64... improvements
 
             return prox;
         }

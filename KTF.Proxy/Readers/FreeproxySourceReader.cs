@@ -12,19 +12,19 @@ namespace KTF.Proxy.Readers
 {
     public class FreeproxySourceReader : SourceReaderBase
     {
-        public override IEnumerable<System.Net.WebProxy> GetProxies(string country, ConnectionType type, string port, System.Threading.CancellationToken cs)
+        public override IEnumerable<WebProxy> GetProxies(string country, ConnectionType type, string port, CancellationToken cs)
         {
-            List<WebProxy> proxies = new List<WebProxy>();
+            var proxies = new List<WebProxy>();
 
-            string url = "http://2freeproxy.com/wp-content/plugins/proxy/load_proxy.php";
-            string post = "type=standard";
+            const string url = "http://2freeproxy.com/wp-content/plugins/proxy/load_proxy.php";
+            const string post = "type=standard";
 
             Trace.WriteLine("Sending request to " + url);
 
             string json = null;
 
-            byte[] b = System.Text.Encoding.UTF8.GetBytes(post);
-            var myHttpWebRequest = (HttpWebRequest)HttpWebRequest.Create(url);
+            var b = Encoding.UTF8.GetBytes(post);
+            var myHttpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             myHttpWebRequest.Method = "POST";
             myHttpWebRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
             myHttpWebRequest.ContentLength = b.Length;
@@ -49,19 +49,22 @@ namespace KTF.Proxy.Readers
 
             var myHttpWebResponse = myHttpWebRequest.EndGetResponse(asyncResult);
             Trace.WriteLine("Response is received");
-            Stream responseStream = responseStream = myHttpWebResponse.GetResponseStream();
-            responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
-            System.IO.StreamReader sr = new System.IO.StreamReader(responseStream, Encoding.Default);
-            json = sr.ReadToEnd();
-            sr.Close();
+            var responseStream = myHttpWebResponse.GetResponseStream();
+            if (responseStream != null)
+            {
+                responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
+                var sr = new StreamReader(responseStream, Encoding.Default);
+                json = sr.ReadToEnd();
+                sr.Close();
+            }
 
             Trace.WriteLine("Parse response in JSON format");
-            var addresses = JObject.Parse(json)["proxy"].ToString().Split(new string[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries);
+            var addresses = JObject.Parse(json)["proxy"].ToString().Split(new[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries);
 
             Trace.WriteLine("Processing response");
             foreach (var address in addresses)
             {
-                if (cs != null && cs.IsCancellationRequested)
+                if (cs.IsCancellationRequested)
                     throw new OperationCanceledException();
                 proxies.Add(new WebProxy(address));
             }

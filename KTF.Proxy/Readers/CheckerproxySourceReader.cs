@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -12,9 +13,9 @@ namespace KTF.Proxy.Readers
     {
         public override IEnumerable<WebProxy> GetProxies(string country, ConnectionType type, string port, CancellationToken cs)
         {
-            List<WebProxy> proxies = new List<WebProxy>();
+            var proxies = new List<WebProxy>();
 
-            string url = "";
+            var url = "";
             if (DateTime.Now.Hour > 15)
                 url = "http://checkerproxy.net/ru/" + DateTime.Now.ToString("dd-MM-yyyy");
             else
@@ -24,7 +25,7 @@ namespace KTF.Proxy.Readers
 
             string HtmlResult = null;
 
-            HttpWebRequest myHttpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+            var myHttpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             myHttpWebRequest.AllowAutoRedirect = false;
             myHttpWebRequest.Proxy = WebRequest.DefaultWebProxy;
 
@@ -39,19 +40,19 @@ namespace KTF.Proxy.Readers
 
 
             var myHttpWebResponse = myHttpWebRequest.EndGetResponse(asyncResult);
-            System.IO.StreamReader sr = new System.IO.StreamReader(myHttpWebResponse.GetResponseStream());
+            var sr = new StreamReader(myHttpWebResponse.GetResponseStream());
             HtmlResult = sr.ReadToEnd();
             sr.Close();
             Trace.WriteLine("Response is received");
 
             Trace.WriteLine("Parse response");
-            HtmlDocument doc = new HtmlDocument();
+            var doc = new HtmlDocument();
             doc.LoadHtml(HtmlResult);
 
-            int limit = doc.GetElementbyId("result-box-table").LastChild.ChildNodes.Count();
+            var limit = doc.GetElementbyId("result-box-table").LastChild.ChildNodes.Count();
 
             Trace.WriteLine("Processing response");
-            for (int i = 0; i < limit; i++)
+            for (var i = 0; i < limit; i++)
             {
                 if (cs != null && cs.IsCancellationRequested)
                     throw new OperationCanceledException();
@@ -60,11 +61,11 @@ namespace KTF.Proxy.Readers
                 var adress = node.ChildNodes[3].InnerText;
                 var _country = node.ChildNodes[5].InnerText;
                 var _type = node.ChildNodes[7].InnerText;
-                bool post = node.ChildNodes[11].InnerText == "+";
-                bool cookie = node.ChildNodes[13].InnerText == "+";
-                bool referer = node.ChildNodes[15].InnerText == "+";
+                var post = node.ChildNodes[11].InnerText == "+";
+                var cookie = node.ChildNodes[13].InnerText == "+";
+                var referer = node.ChildNodes[15].InnerText == "+";
                 var proxyip = node.ChildNodes[17].InnerText;
-                bool high = !proxyip.Contains("IP");
+                var high = !proxyip.Contains("IP");
 
                 if (high && post && cookie && referer)
                 {
@@ -84,7 +85,7 @@ namespace KTF.Proxy.Readers
                     if (port != "" && (port.ToLower().Trim() != parts[1].ToLower().Trim()))
                         continue;
 
-                    int _port = 0;
+                    var _port = 0;
                     if (Int32.TryParse(parts[1], out _port))
                     {
                         if (!proxies.Any(p => p.Address == new Uri("http://" + adress)))

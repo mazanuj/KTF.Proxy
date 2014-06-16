@@ -40,7 +40,7 @@ namespace KTF.Proxy.Storage
         /// </summary>       
         public IEnumerable<WebProxy> LoadFromFile()
         {
-            List<WebProxy> proxies = new List<WebProxy>();
+            var proxies = new List<WebProxy>();
 
             string line = null;
             if (!File.Exists(FilePath)) return null;
@@ -56,7 +56,7 @@ namespace KTF.Proxy.Storage
                     if (adress != "")
                     {
                         var parts = adress.Split(':');
-                        int _port = 0;
+                        var _port = 0;
                         if (parts.Count() == 2 && Int32.TryParse(parts[1], out _port))
                         {
                             proxies.Add(new WebProxy(parts[0], _port));
@@ -80,7 +80,7 @@ namespace KTF.Proxy.Storage
         {
             if (proxies.Count() == 0) return;
 
-            System.IO.TextWriter writeFile = new StreamWriter(FilePath);
+            TextWriter writeFile = new StreamWriter(FilePath);
             foreach (var proxy in proxies)
             {
                 if (proxy != null)
