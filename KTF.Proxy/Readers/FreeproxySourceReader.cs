@@ -19,7 +19,7 @@ namespace KTF.Proxy.Readers
             string url = "http://2freeproxy.com/wp-content/plugins/proxy/load_proxy.php";
             string post = "type=standard";
 
-            Trace.WriteLine("Sending request to " + url);
+            Debug.WriteLine("Sending request to " + url);
 
             string json = null;
 
@@ -48,17 +48,17 @@ namespace KTF.Proxy.Readers
             }
 
             var myHttpWebResponse = myHttpWebRequest.EndGetResponse(asyncResult);
-            Trace.WriteLine("Response is received");
+            Debug.WriteLine("Response is received");
             Stream responseStream = responseStream = myHttpWebResponse.GetResponseStream();
             responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
             System.IO.StreamReader sr = new System.IO.StreamReader(responseStream, Encoding.Default);
             json = sr.ReadToEnd();
             sr.Close();
 
-            Trace.WriteLine("Parse response in JSON format");
+            Debug.WriteLine("Parse response in JSON format");
             var addresses = JObject.Parse(json)["proxy"].ToString().Split(new string[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries);
 
-            Trace.WriteLine("Processing response");
+            Debug.WriteLine("Processing response");
             foreach (var address in addresses)
             {
                 if (cs != null && cs.IsCancellationRequested)
@@ -66,7 +66,7 @@ namespace KTF.Proxy.Readers
                 proxies.Add(new WebProxy(address));
             }
 
-            Trace.WriteLine("Proxies loaded successfully");
+            Debug.WriteLine("Proxies loaded successfully");
 
             return proxies;
         }
