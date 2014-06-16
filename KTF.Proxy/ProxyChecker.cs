@@ -3,31 +3,30 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 
 namespace KTF.Proxy
 {
     public class ProxyChecker
-    {
-        const string UrlToCheck = "http://ya.ru/";
-
+    {        
         /// <summary>
         /// Average time in millisecond for checking 1 proxy
         /// </summary>
-        public const int AverageChekingTime = 430;
+        //public const int AverageChekingTime = 430;        
 
-        public int Timeout { get; set; }
-        const int DefaultTimeout = 1200;
+        private int Timeout { get; set; }
+        private string UrlToCheck { get; set; }
+        
 
         public event CheckedEventHandler Checked;
 
-        public ProxyChecker()
+        public ProxyChecker(int timeout, string server)
         {
-            Timeout = DefaultTimeout;
+            Timeout = timeout;
+            UrlToCheck = server;
         }
 
-        protected virtual void OnChecked(WebProxyEventArgs e)
+        private void OnChecked(WebProxyEventArgs e)
         {
             if (Checked != null)
                 Checked(this, e);
@@ -38,7 +37,7 @@ namespace KTF.Proxy
         /// </summary>
         /// <param name="proxy">Proxy to check</param>
         /// <exception cref="System.OperationCanceledException"/>
-        public bool CheckProxy(WebProxy proxy)
+        private bool CheckProxy(WebProxy proxy)
         {
             if (proxy == null) return false;
 
@@ -47,14 +46,14 @@ namespace KTF.Proxy
                 var myHttpWebRequest = (HttpWebRequest)WebRequest.Create(UrlToCheck);
                 myHttpWebRequest.AllowAutoRedirect = false;
                 myHttpWebRequest.Proxy = proxy;
-                myHttpWebRequest.Timeout = 1200;
+                myHttpWebRequest.Timeout = Timeout;
                 myHttpWebRequest.KeepAlive = false;
-                var myHttpWebResponse = (HttpWebResponse)myHttpWebRequest.GetResponse();
+                var httpWebResponse = (HttpWebResponse)myHttpWebRequest.GetResponse();
 
                 OnChecked(new WebProxyEventArgs(proxy, true));
                 return true;
             }
-            catch (WebException ex)
+            catch (WebException)
             {
                 OnChecked(new WebProxyEventArgs(proxy, false));
                 return false;
@@ -73,8 +72,7 @@ namespace KTF.Proxy
             if (proxies == null) throw new ArgumentNullException();
             Trace.WriteLine("Checking proxies with " + UrlToCheck);
 
-            List<WebProxy> prox = null;
-                prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).WithCancellation(cs).Where(CheckProxy));
+            var prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).WithCancellation(cs).Where(CheckProxy));
             Trace.WriteLine("Checking done");
 
             return prox;
