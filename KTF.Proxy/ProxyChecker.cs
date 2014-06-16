@@ -8,7 +8,13 @@ using System.Threading;
 namespace KTF.Proxy
 {
     public class ProxyChecker
+<<<<<<< HEAD
     {        
+=======
+    {
+        const string UrlToCheck = "http://www.yandex.ru/";
+
+>>>>>>> parent of 91d9a64... improvements
         /// <summary>
         /// Average time in millisecond for checking 1 proxy
         /// </summary>
@@ -46,9 +52,14 @@ namespace KTF.Proxy
                 var myHttpWebRequest = (HttpWebRequest)WebRequest.Create(UrlToCheck);
                 myHttpWebRequest.AllowAutoRedirect = false;
                 myHttpWebRequest.Proxy = proxy;
+<<<<<<< HEAD
                 myHttpWebRequest.Timeout = Timeout;
                 myHttpWebRequest.KeepAlive = false;
                 var httpWebResponse = (HttpWebResponse)myHttpWebRequest.GetResponse();
+=======
+                myHttpWebRequest.Timeout = 1200;
+                var myHttpWebResponse = (HttpWebResponse)myHttpWebRequest.GetResponse();
+>>>>>>> parent of 91d9a64... improvements
 
                 OnChecked(new WebProxyEventArgs(proxy, true));
                 return true;
@@ -67,13 +78,23 @@ namespace KTF.Proxy
         /// <param name="cs">CancellationTokenSource. Null if not needed</param>
         /// <exception cref="System.ArgumentNullException"/>
         /// <exception cref="System.OperationCanceledException"/>
-        public IEnumerable<WebProxy> GetTestedProxies(IEnumerable<WebProxy> proxies, CancellationToken cs)
+        public IEnumerable<WebProxy> GetTestedProxies(IEnumerable<WebProxy> proxies, CancellationTokenSource cs = null)
         {
             if (proxies == null) throw new ArgumentNullException();
-            Trace.WriteLine("Checking proxies with " + UrlToCheck);
+            Debug.WriteLine("Checking proxies with " + UrlToCheck);
 
+<<<<<<< HEAD
             var prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).WithCancellation(cs).Where(CheckProxy));
             Trace.WriteLine("Checking done");
+=======
+            List<WebProxy> prox = null;
+            if(cs == null)
+                prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).Where(CheckProxy));
+            else
+                prox = new List<WebProxy>(proxies.AsParallel().WithDegreeOfParallelism(10).WithCancellation(cs.Token).Where(CheckProxy));
+
+            Debug.WriteLine("Checking done");
+>>>>>>> parent of 91d9a64... improvements
 
             return prox;
         }
