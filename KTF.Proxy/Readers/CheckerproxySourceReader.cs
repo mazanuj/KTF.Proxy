@@ -15,15 +15,13 @@ namespace KTF.Proxy.Readers
         {
             var proxies = new List<WebProxy>();
 
-            var url = "";
+            string url;
             if (DateTime.Now.Hour > 15)
                 url = "http://checkerproxy.net/ru/" + DateTime.Now.ToString("dd-MM-yyyy");
             else
                 url = "http://checkerproxy.net/ru/" + DateTime.Now.AddDays(-1).ToString("dd-MM-yyyy");
 
             Trace.WriteLine("Sending request to " + url);
-
-            string HtmlResult = null;
 
             var myHttpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             myHttpWebRequest.AllowAutoRedirect = false;
@@ -41,7 +39,7 @@ namespace KTF.Proxy.Readers
 
             var myHttpWebResponse = myHttpWebRequest.EndGetResponse(asyncResult);
             var sr = new StreamReader(myHttpWebResponse.GetResponseStream());
-            HtmlResult = sr.ReadToEnd();
+            var HtmlResult = sr.ReadToEnd();
             sr.Close();
             Trace.WriteLine("Response is received");
 
@@ -54,7 +52,7 @@ namespace KTF.Proxy.Readers
             Trace.WriteLine("Processing response");
             for (var i = 0; i < limit; i++)
             {
-                if (cs != null && cs.IsCancellationRequested)
+                if (cs.IsCancellationRequested)
                     throw new OperationCanceledException();
 
                 var node = doc.GetElementbyId("result-box-table").LastChild.ChildNodes[i];
@@ -85,12 +83,10 @@ namespace KTF.Proxy.Readers
                     if (port != "" && (port.ToLower().Trim() != parts[1].ToLower().Trim()))
                         continue;
 
-                    var _port = 0;
-                    if (Int32.TryParse(parts[1], out _port))
-                    {
-                        if (!proxies.Any(p => p.Address == new Uri("http://" + adress)))
-                            proxies.Add(new WebProxy(parts[0], _port));
-                    }
+                    int _port;
+                    if (!Int32.TryParse(parts[1], out _port)) continue;
+                    if (proxies.All(p => p.Address != new Uri("http://" + adress)))
+                        proxies.Add(new WebProxy(parts[0], _port));
                 }
             }
 

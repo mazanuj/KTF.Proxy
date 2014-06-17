@@ -42,32 +42,28 @@ namespace KTF.Proxy.Storage
         {
             var proxies = new List<WebProxy>();
 
-            string line = null;
             if (!File.Exists(FilePath)) return null;
 
             TextReader readFile = new StreamReader(FilePath);
 
             while (true)
             {
-                line = readFile.ReadLine();
+                var line = readFile.ReadLine();
                 if (line != null)
                 {
                     var adress = line.Trim();
-                    if (adress != "")
+                    if (adress == "") continue;
+                    var parts = adress.Split(':');
+                    int _port;
+                    if (parts.Count() == 2 && Int32.TryParse(parts[1], out _port))
                     {
-                        var parts = adress.Split(':');
-                        var _port = 0;
-                        if (parts.Count() == 2 && Int32.TryParse(parts[1], out _port))
-                        {
-                            proxies.Add(new WebProxy(parts[0], _port));
-                        }
+                        proxies.Add(new WebProxy(parts[0], _port));
                     }
                 }
                 else
                     break;
             }
             readFile.Close();
-            readFile = null;
 
             return proxies;
         }
@@ -78,17 +74,16 @@ namespace KTF.Proxy.Storage
         /// <param name="proxies">Proxies to save</param>
         public void SaveToFile(IEnumerable<WebProxy> proxies)
         {
-            if (proxies.Count() == 0) return;
+            var webProxies = proxies as IList<WebProxy> ?? proxies.ToList();
+            if (!webProxies.Any()) return;
 
             TextWriter writeFile = new StreamWriter(FilePath);
-            foreach (var proxy in proxies)
+            foreach (var proxy in webProxies.Where(proxy => proxy != null))
             {
-                if (proxy != null)
-                    writeFile.WriteLine(proxy.Address.Host + ":" + proxy.Address.Port);
+                writeFile.WriteLine(proxy.Address.Host + ":" + proxy.Address.Port);
             }
             writeFile.Flush();
             writeFile.Close();
-            writeFile = null;
         }
     }
 }
